@@ -1,0 +1,182 @@
+
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+        <meta name="description" content="Jacob Johnson homepage">
+		<meta name="keywords" content="Jacob Johnson, natural language processing, computational linguistics, nnnNNnnn,Moric Developers">
+		<meta name="author" content="Jacob Johnson">
+		
+		<link rel="icon" href="../favicon.ico">
+		<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+		<link rel="apple-touch-icon" sizes="180x180" href="../favicon_io/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="../favicon_io/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="../favicon_io/favicon-16x16.png">
+		<link rel="manifest" href="../favicon_io/site.webmanifest">
+
+		<title>Jacob Johnson</title>
+        <style>
+            ::selection{
+                            color:#A2A2DF;
+                            background-color:#9292CF
+            }
+			body{
+				background-color:#2D2D5F;
+				background-image:url('../images/back.png');
+				font-family:monospace;
+				font-size:15px;
+				color:#7F7FC1;/*#5D5D9F*/
+			}
+			header{
+				background-color:#1C1A6E;
+				width:900px;
+				height:200px;	
+				float:left;
+			}
+			.main > nav{
+				background-color:#3E2D8F;
+				float:left;
+				/*width:300px;*/
+				/*height:800px;*/
+				/*new stuff below*/
+				width:calc(100%/3);
+			}
+			footer{
+				/*height:200px;*/
+				width:900px;
+				background-color:#2D3E7F;
+				float:left;
+			}
+			h1{
+				font-family:monospace;
+				color:#6D6D9F;
+				font-size:70px;
+				padding-top:42px;
+			}
+			h2{
+				font-size:20px;
+				margin-bottom:6px;
+			}
+			.container{
+				background-color:#000;
+				width:900px;
+				/*height:1200px;*/
+				margin-top:64px;
+				margin-bottom:62px;
+				margin-right:auto;
+				margin-left:auto;
+				border:4px solid #0D0D3F;
+				/*new stuff below*/
+				overflow:hidden;
+			}
+			.main{
+				background-color:blue;
+				/*height:800px;*/
+				width:900px;
+				float:left;
+				/*new stuff below*/
+				display:flex;
+			}
+			.main > .article{
+				background-color:#2D2D7F;
+				float:left;
+				/*height:792px;*/
+				/*width:592px;*/
+				padding:4px;
+				/*new stuff below*/
+				width:calc(200%/3);
+
+			}
+			a:link{
+				font-family:monospace;
+				color:#8D8DAF;
+			}
+			a:visited{
+				font-family:monospace;
+				color:#7D7D9F;
+			}
+			a:hover{
+				font-family:monospace;
+				color:#6D6D9F;
+				font-size:18px;
+			}
+			a:active{
+				font-family:monospace;
+				color:#5D5D8F;
+			}
+			li{
+				font-size:16px;
+			}
+			.sale{
+				background-color:#2D2D7F;
+				width:100%;
+				height:20%;
+				float:right;
+			}
+			img{
+				margin-right:4px;
+				margin-left:4px;
+			
+				margin-bottom:2px;
+			}
+			p{
+				font-size:15px;
+				margin-top:6px;
+			}
+        </style>
+        <script>
+			if ('serviceWorker' in navigator) {
+				navigator.serviceWorker.register('/sw.js');
+			}
+        </script>
+	</head>
+	<body>
+    	<div class="container">
+        	<header>
+				<img id ="logo" src="../images/nlogo.png" style="height:100%;float:right;" alt="our logo" title="our logo" />
+				<h1>nnnNNnnn.info</h1>
+            </header>
+            <div class="main">
+            	<nav>
+                    <ul>
+                    	<li><a href="../index.html">HOME</a></li> 
+                    </ul>
+                </nav>
+                <div class="article" id="article">
+						<p>Below are a handful of reports and papers I have written or collaborated on in various classes. They are arranged in reverse chronological order, with the most recent at the top. Be sure to also check out <a href="https://github.com/jacobkj314">My GitHub</a> to see some of my coding projects.</p>
+
+						<h3>DrugReader (for CS6390 Information Extraction from Text)</h3>
+						<p>These are the reports I wrote on my relation extraction system. It was a three phase project, where each phase should have some addition and improvement. The three phase reports, plus the overall report are below:</p>
+						<ul>
+							<li><a href = "./DrugReader/Phase1.pdf">Phase 1 report</a></li>
+							<li><a href = "./DrugReader/Phase2.pdf">Phase 2 report</a></li>
+							<li><a href = "./DrugReader/Phase3.pdf">Phase 3 report</a></li>
+							<li><a href = "./DrugReader/Summary.pdf">Overall report</a></li>
+						</ul>
+
+						<h3>Vector Embedding Research Proposal (for LING5190 Psycholinguistics)</h3>
+						<p>With a partner, I wrote a research proposal, including expected results, for a final project in this class. We proposed to expand on previous evaluations of vector embeddings by separately evaluating similarities between words with different types of semantic relatedness, all using the lexical decision task paradigm.</p>
+						<ul>
+							<li><a href="./Psycholinguistics/ResearchProposal.pdf">Research Proposal</a></li>
+							<li><a href="./Psycholinguistics/PsycholinguisticsLab2.pdf">Also, a lab report on an earlier Lexical Decision Task experiment</a></li>
+						</ul>
+
+						<h3>Syntax Report (for LING5021 Syntax)</h3>
+						<p><a href="./Syntax/LING5021Paper.pdf">Here</a> is a report I wrote on Syntactic and Semantic Interactions with Movement.</p>
+
+						<h3>Statistics Report (for MATH3080 Syntax II)</h3>
+						<p><a href="./Statistics/Project.pdf">Here</a> is a report I wrote as a term project. My data came from an experient in LING5011 Phonetics/Phonology II, but I wanted to do additional statistical analysis on the data.</p>
+                </div>
+                
+            </div>
+            <footer>
+			<br>
+            	<center>&copy;2022 Jacob Johnson</center>
+				<center>{first name}{dot}k{dot}{last name}{at}utah{dot}edu</center>
+			</br>
+            </footer>
+        </div>
+	</body>
+</html>
+

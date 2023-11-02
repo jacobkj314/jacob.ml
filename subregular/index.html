@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Subregular Languages</title>
+        <link rel="stylesheet" href="https://latex.now.sh/style.css">
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <style>
+
+            :root {
+                --body-bg-color: rgb(255, 240, 250);
+            }
+
+            .center, table, h1, h2, h3, h4, h5{
+                margin-left: auto;
+                margin-right: auto;
+            }
+            table, tbody, tr, th, td{
+                border-top:none;
+                border:none;
+            }
+
+            /*These next two are used to remove top and bottom borders from tables*/
+            table > tbody > tr:first-child > td,
+            table > tbody > tr:first-child > th {
+                border-top: none;
+            }
+            table > tbody > tr:last-child > td,
+            table > tbody > tr:last-child > th {
+                border-bottom: none;
+            }
+
+            .example > tbody > tr > td{
+                font-style:italic;
+                padding: 3px;
+            }
+
+            svg{
+                /*display:block;
+                text-align:center;*/
+                margin-left: 50%;
+                transform: translateX(-50%);
+
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>Subregular Languages</h1>
+            <p class="author">Jacob Johnson</p>
+        </header>
+        <!--This question is my hook. It's not a story, but it is in line with 3b1b-style hooks, which are essentially just a question-->
+        <article class="indent-pars">
+            <p>Suppose you are given the following words and told that they all come from an unknown language:</p>
+            <table class="example">
+                <tr><td>shashekush</td><td>sasokos</td><td>shakushush</td><td>sakesas</td></tr>
+                <tr><td>sheshukush</td><td>sesukos</td><td>shekeshush</td><td>sekoses</td></tr>
+                <tr><td>shishokesh</td><td>sisekos</td><td>shikishosh</td><td>sikisis</td></tr>
+                <tr><td>shoshokesh</td><td>sosakos</td><td>shokashesh</td><td>sokusas</td></tr>
+                <tr><td>shushakish</td><td>susukos</td><td>shukoshosh</td><td>sukasus</td></tr>
+                <tr><td>shashokush</td><td>sasakus</td><td>shakushish</td><td>sakisos</td></tr>
+                <tr><td>sheshokish</td><td>sesukis</td><td>shekeshosh</td><td>sekeses</td></tr>
+                <tr><td>shishukosh</td><td>sisokos</td><td>shikeshash</td><td>sikasos</td></tr>
+                <tr><td>shoshokush</td><td>sosikas</td><td>shokeshish</td><td>sokosis</td></tr>
+                <tr><td>shushakesh</td><td>susokis</td><td>shukoshesh</td><td>sukesas</td></tr>
+            </table>
+
+            <p>Now suppose you are asked to determine, for each of the below pairs, which word in the pair also came from this same language:</p>
+            <table class="example">
+                <tr><td>shoshukosh</td><td>shosukosh</td></tr>
+                <tr><td>sukesus</td><td>sukeshus</td></tr>
+                <tr><td>sisakus</td><td>sishakus</td></tr>
+                <tr><td>shakashosh</td><td>shakasosh</td></tr>
+                <tr><td>shokushosh</td><td>shokusosh</td></tr>
+                <tr><td>susekus</td><td>sushekus</td></tr>
+                <tr><td>sikasus</td><td>sikashus</td></tr>
+                <tr><td>shashakosh</td><td>shasakosh</td></tr>
+                <tr><td>soshakas</td><td>sosakas</td></tr>
+                <tr><td>shusekish</td><td>shushekish</td></tr>
+                <tr><td>sakushes</td><td>sakuses</td></tr>
+                <tr><td>shekosash</td><td>shekoshash</td></tr>
+                <tr><td>sashukes</td><td>sasukes</td></tr>
+                <tr><td>shesokash</td><td>sheshokash</td></tr>
+                <tr><td>sokashas</td><td>sokasas</td></tr>
+                <tr><td>shukesish</td><td>shukeshish</td></tr>
+            </table>
+            <p>Take a minute to look through this list for yourself. Pronounce them out loud to get a better feel for them and consider writing down your answers to check back later. This may seem like a strange task, but it was real for participants in the studies <a href="https://journals.linguisticsociety.org/proceedings/index.php/ExtendedAbs/article/viewFile/584/495">Lai (2015)</a> and <a href="https://www.glossa-journal.org/article/id/5304/">Avcu & Hestvik (2020)</a>. And if you think about it, you have been doing the same thing your whole life as you have learned languages: for English, when you hear the words "gnocchi", "tzatziki" and "sriracha", you can probably tell that they originated from another language, based on the way they sound. Conversely, when you hear the words "blick", "nord", or "saf" you might get the impression that they <i>could have been</i> natural-sounding English words — maybe a name, or an item — even though they don't have any English meaning to you. However, you likely don't get that same impression about "bnick", "ngord", or "sapf".</p>
+
+            <p>Why is this the case? And what were researchers Lai and Avcu & Hestvik investigating with their studies?</p>
+            <p>In this article, we will investigate the answers to these questions, look at foundational material in phonotactics and computability theory, and gain insight along the way into the connection between language and computation. By the end, you will understand what these researchers predicted about your answers to the above questions, and why they predicted that.</p>
+
+            <h3>Phonotactics</h3>
+            <p><b>Phonotactics</b> describes the patterns of sounds (called phonemes when referring to types of sounds, or segments when referring to individual instances of a phoneme) that are used by a language. We've already seen examples of this: a <b>phonologist</b> (a linguist who studes speech sounds) would describe our observation that "bnick" doesn't <i>sound English</i> by saying that "bnick" <i>violates English phonotactics</i>. Phonologists refer to this property of a string of sounds, that a speaker of the language in question would say sounds strange, as <b>ungrammaticality</b> or <b>ill-formedness</b>.</p>
+            <p>Phonotactics is an additional dimension of a language's <b>phonology</b> (its complete set of sound patterns) beyond its <b>phonemic inventory</b> (the set of types of sounds, or phonemes, it contains). For example, you might associate Spanish with rolled r's, French with nasalized vowels, or German and Arabic with throaty sounds — and it's true that different languages do have different phonemic inventories (English is uncommon in having its "th" sounds - both the kind in "that" and in "think"), but this is a separate phonetic property of a language. Instead, phonotactics has to do with the sounds that a language allows to cooccur next to each other or within a word — the "bn" consonant cluster from "bnick" is not allowed in English, for example. These phonotactic restrictions, just like phonemic inventories, vary from language to language: German allows clusters like "kn" and "pf" which English prohibits, while a lot of languages allow the "ng" sound from the end of "sing" to occur in places other than at the end of words, which is the only place where English permits it. Some  languages, on the other hand, are more restrictive than English in some ways, like Spanish, which doesn't allow clusters of "s" followed by a consonant (except if it bridges a syllable boundary), or Turkish, which has restrictions on which vowels can cooccur in the same word.</p>
+            
+            <h5>Local Restrictions</h5>
+            <p>Many of these phonotactic rules, you may have noticed, prohibit certain phonemes from occurring adjacent to each other in a word. Computational phonologists call these sort of restrictions, and the languages that contain them <b>Strictly Local</b> <a href="https://archive.org/details/CounterFre_00_McNa/page/16/mode/2up">(McNaughton & Papert, 1971)</a>. This name derives from the fact that you can tell whether a word is well formed or not simply by looking at each <b>substring</b> (that is, each piece of the word, without skipping any segments) of the word, and making sure there isn't anything that should be restricted: "blick" sounds ok to English speakers because "bl" is ok (as evidenced by "blend", "blunder", "able"), "li" is ok ("little", "flint", "alliteration") and "ick" is okay ("sick", "tricky", "pick" - notice that we treat "ck" as just one sound).</p>
+            
+            <h5>Non-Local Restrictions</h5>
+            <p>However, many languages have restrictions which occur at a distance, like Turkish, which I introduced as having restrictions on which vowels <a href="https://en.wikipedia.org/wiki/Turkish_phonology#Vowel_harmony">can cooccur in the same word</a>. Specifically, vowels in Turkish words agree, or harmonize, in their qualities of <b>backness</b>: whether the speaker's tongue is forward in the mouth, as in 'e' (rhymes with 'cake'), 'i' ('see'), 'ü', and 'ö', or back in the mouth, as in 'a' ('father'), 'ı', 'u' ('goose'), and 'o' ('yawn'), as well as  <b>rounding</b>: whether the speakers lips are rounded, as in 'ü', 'ö', 'u' and 'o' or unrounded, as in 'e', 'i', 'a', and ı'. This interaction occurs between a suffix's vowel and its preceding vowel, even though there are other consonants in between. For instance, the linked Wikipedia article shows that 'kapıdır' is grammatical ('o' and 'u' are both back and rounded), however 'kapıdür' (backness mismatch) and 'kapıdur' (rounding mismatch) are not. <a href="https://aclanthology.org/P11-2011.pdf">Heinz et al. (2011)</a> proposes to account for this observation by introducing the idea of a phonological tier: "a level of representation where not all speech sounds are present". That is, Turkish vowels might be separated by consonants when they are pronounced, but we can also think of them as existing within a tier, or projection, from the word, which only contains the <b>subsequence</b> of vowels that participate in these interactions ('aıı' for 'kapıdır' in this case). Within this tier, the restrictions on front vowels cooccuring with back vowels is still the same Strictly Local - without the consonants in the way, the vowels are right next to each other. This very important idea introduced the concept of Tier-based Strictly Local (also shortened to TSL) languages - ones whose patterns could be expressed as a tier and a set of locally restricted substrings on that tier. <a href="https://aclanthology.org/P11-2011.pdf">Heinz et al. (2011)</a> also introduced what is known as the <b>Subregular Hypothesis</b>, which starts to bring us back to the study question from the beginning of the article, but we are not quite ready to understand what that means, or why it is called that, without some introductory computability theory.</p>
+
+            <h3>Computability Theory</h3>
+            
+            <h5>Lamp</h5>
+            <p>Suppose you have a lamp. When you first get it, it is turned off, but you can turn it on by pressing a button, or off again by pressing the same button. You might represent this lamp with the following diagram:</p>
+            <svg preserveAspectRatio="xMaxYMax meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="413pt" height="115pt" viewBox="0.00 0.00 413.36 114.76">
+            <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 110.7569)">
+            <title>G</title>
+            <polygon fill="none" stroke="transparent" points="-4,4 -4,-110.7569 409.3571,-110.7569 409.3571,4 -4,4"/>
+            <g id="node1" class="node">
+            <title/>
+            </g>
+            <!-- Lamp Off -->
+            <g id="node3" class="node">
+            <title>Lamp Off</title>
+            <ellipse fill="none" stroke="#000000" cx="144.3784" cy="-53.3784" rx="49.2662" ry="49.2662"/>
+            <ellipse fill="none" stroke="#000000" cx="144.3784" cy="-53.3784" rx="53.2572" ry="53.2572"/>
+            <text text-anchor="middle" x="144.3784" y="-49.1784" font-family="Times,serif" font-size="14.00" fill="#000000">Lamp Off</text>
+            </g>
+            <!-- &#45;&gt;Lamp Off -->
+            <g id="edge1" class="edge">
+            <title>-&gt;Lamp Off</title>
+            <path fill="none" stroke="#000000" d="M54.224,-53.3784C62.2811,-53.3784 71.4614,-53.3784 80.808,-53.3784"/>
+            <polygon fill="#000000" stroke="#000000" points="80.9701,-56.8785 90.9701,-53.3784 80.97,-49.8785 80.9701,-56.8785"/>
+            </g>
+            <!-- Lamp On -->
+            <g id="node2" class="node">
+            <title>Lamp On</title>
+            <ellipse fill="none" stroke="#000000" cx="353.5798" cy="-53.3784" rx="47.5727" ry="47.5727"/>
+            <ellipse fill="none" stroke="#000000" cx="353.5798" cy="-53.3784" rx="51.5556" ry="51.5556"/>
+            <text text-anchor="middle" x="353.5798" y="-49.1784" font-family="Times,serif" font-size="14.00" fill="#000000">Lamp On</text>
+            </g>
+            <!-- Lamp On&#45;&gt;Lamp Off -->
+            <g id="edge3" class="edge">
+            <title>Lamp On-&gt;Lamp Off</title>
+            <path fill="none" stroke="#000000" d="M304.4234,-36.8049C297.5668,-35.0589 290.5571,-33.5638 283.8025,-32.5784 253.8767,-28.213 245.6959,-28.3051 215.7569,-32.5784 212.3308,-33.0675 208.8393,-33.6822 205.3339,-34.391"/>
+            <polygon fill="#000000" stroke="#000000" points="204.4486,-31.0026 195.46,-36.6111 205.9843,-37.8321 204.4486,-31.0026"/>
+            <text text-anchor="middle" x="249.7797" y="-36.5784" font-family="Times,serif" font-size="14.00" fill="#000000">press button</text>
+            </g>
+            <!-- Lamp Off&#45;&gt;Lamp On -->
+            <g id="edge2" class="edge">
+            <title>Lamp Off-&gt;Lamp On</title>
+            <path fill="none" stroke="#000000" d="M197.9813,-53.3784C226.4624,-53.3784 261.6221,-53.3784 291.3094,-53.3784"/>
+            <polygon fill="#000000" stroke="#000000" points="291.5621,-56.8785 301.5621,-53.3784 291.562,-49.8785 291.5621,-56.8785"/>
+            <text text-anchor="middle" x="249.7797" y="-57.5784" font-family="Times,serif" font-size="14.00" fill="#000000">press button</text>
+            </g>
+            </g>
+            </svg>
+            <p>Let's notice a few things about this diagram. First, there are two <b>states</b>: "Lamp Off" and "Lamp On", represented here by circles. Secondly, there is an extra arrow pointing to the "Lamp Off" state, indicating that the lamp is turned off when you first begin using it. Finally, there are transitions between the states, which in this case both represent the action of pressing the button. Specifically, if you are in the "Lamp Off" state and you want to know what state you will be in after the "Press Button" action, you follow the arrow with the "Press Button" Label to arrive in the "Lamp On" state.</p>
+            <p>Computer scientists refer to the sort of systems that can be represented by this sort of diagram as <b>Finite-State-Automata</b> or <b>FSA</b>s. In this example, there are only two states: "Lamp On" and "Lamp Off". But in theory, you can imagine a FSA with arbitrarily (but finitely!) many states. The only requirements are that this FSA should have:</p>
+            <ul>
+                <li>A set of finitely many states</li>
+                <li>Some subset of those states designated as <b>starting states</b> (in the diagram, they would have the extra arrow pointing to them, like "Lamp Off" in the above example)</li>
+                <li>A set of <b>transitions</b> from one state to another, associated with some action/operation or <b>symbol</b> ("press button" in this case). To simulate the system changing state in response to a particular symbol, move from the current state along the arrow with that symbol's label to arrive at the new state.</li>
+                <li>Some subset of the states designated as <b>final states</b>. These are denoted with double lines around their border (so in the above example, both states were final states). These allow an FSA to <b>accept or reject</b> a string of input actions/operations/symbols: if that string can lead the FSA to end up in a final state, then the FSA is said to accept that string, but if that is not the case, the FSA rejects the string. To illustrate an FSA for which there is an important difference between final and non-final states, consider the next example:</li>
+            </ul>
+            
+            <h5>RGB Lamp I</h5>
+            <p>Suppose you decide that a single-color lamp is too boring, so you decide to upgrade. You buy a lamp that allows you to select between three colors: red, green and blue. Correspondingly, this new lamp has more than just one button; it has four: one for each color (labeled 'r','g','b', respectively), plus one to turn the lamp off (labeled 'x'). However, unfortunately for you, this lamp shipped with an unfortunate defect: if you ever press the 'g' button while the lamp is already shining green, the whole lamp will short-circuit and stop working. To visualize this lamp as an FSA, your diagram might look something like the following:</p>
+            <svg preserveAspectRatio="xMaxYMax meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="502pt" height="473pt" viewBox="0.00 0.00 502.24 473.40">
+                <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 469.3974)">
+                <title>G</title>
+                <polygon fill="none" stroke="transparent" points="-4,4 -4,-469.3974 498.2352,-469.3974 498.2352,4 -4,4"/>
+                <g id="node1" class="node">
+                <title/>
+                </g>
+                <!-- Off -->
+                <g id="node3" class="node">
+                <title>Off</title>
+                <ellipse fill="none" stroke="#000000" cx="119.4375" cy="-70.5974" rx="24.3838" ry="24.3838"/>
+                <ellipse fill="none" stroke="#000000" cx="119.4375" cy="-70.5974" rx="28.375" ry="28.375"/>
+                <text text-anchor="middle" x="119.4375" y="-66.3974" font-family="Times,serif" font-size="14.00" fill="#000000">Off</text>
+                </g>
+                <!-- &#45;&gt;Off -->
+                <g id="edge1" class="edge">
+                <title>-&gt;Off</title>
+                <path fill="none" stroke="#000000" d="M54.2343,-70.5974C62.5022,-70.5974 71.7511,-70.5974 80.6259,-70.5974"/>
+                <polygon fill="#000000" stroke="#000000" points="80.7912,-74.0975 90.7911,-70.5974 80.7911,-67.0975 80.7912,-74.0975"/>
+                </g>
+                <!-- Green -->
+                <g id="node2" class="node">
+                <title>Green</title>
+                <ellipse fill="none" stroke="#000000" cx="229.4995" cy="-170.5974" rx="34.7366" ry="34.7366"/>
+                <ellipse fill="none" stroke="#000000" cx="229.4995" cy="-170.5974" rx="38.7495" ry="38.7495"/>
+                <text text-anchor="middle" x="229.4995" y="-166.3974" font-family="Times,serif" font-size="14.00" fill="#000000">Green</text>
+                </g>
+                <!-- Green&#45;&gt;Off -->
+                <g id="edge13" class="edge">
+                <title>Green-&gt;Off</title>
+                <path fill="none" stroke="#000000" d="M200.8513,-144.5684C184.6632,-129.8601 164.4849,-111.5266 148.267,-96.7914"/>
+                <polygon fill="#000000" stroke="#000000" points="150.4135,-94.0127 140.6585,-89.8784 145.7062,-99.1936 150.4135,-94.0127"/>
+                <text text-anchor="middle" x="169.3749" y="-122.7974" font-family="Times,serif" font-size="14.00" fill="#000000">x</text>
+                </g>
+                <!-- Blue -->
+                <g id="node4" class="node">
+                <title>Blue</title>
+                <ellipse fill="none" stroke="#000000" cx="350.5877" cy="-70.5974" rx="29.0795" ry="29.0795"/>
+                <ellipse fill="none" stroke="#000000" cx="350.5877" cy="-70.5974" rx="33.0527" ry="33.0527"/>
+                <text text-anchor="middle" x="350.5877" y="-66.3974" font-family="Times,serif" font-size="14.00" fill="#000000">Blue</text>
+                </g>
+                <!-- Green&#45;&gt;Blue -->
+                <g id="edge12" class="edge">
+                <title>Green-&gt;Blue</title>
+                <path fill="none" stroke="#000000" d="M252.4553,-139.2337C262.012,-127.5178 273.7595,-114.6738 286.124,-104.7974 293.6116,-98.8166 302.3023,-93.3843 310.8315,-88.6986"/>
+                <polygon fill="#000000" stroke="#000000" points="312.7252,-91.6578 319.9586,-83.9164 309.4764,-85.4573 312.7252,-91.6578"/>
+                <text text-anchor="middle" x="289.624" y="-109.7974" font-family="Times,serif" font-size="14.00" fill="#000000">b</text>
+                </g>
+                <!-- Red -->
+                <g id="node5" class="node">
+                <title>Red</title>
+                <ellipse fill="none" stroke="#000000" cx="463.6432" cy="-70.5974" rx="26.6721" ry="26.6721"/>
+                <ellipse fill="none" stroke="#000000" cx="463.6432" cy="-70.5974" rx="30.6841" ry="30.6841"/>
+                <text text-anchor="middle" x="463.6432" y="-66.3974" font-family="Times,serif" font-size="14.00" fill="#000000">Red</text>
+                </g>
+                <!-- Green&#45;&gt;Red -->
+                <g id="edge10" class="edge">
+                <title>Green-&gt;Red</title>
+                <path fill="none" stroke="#000000" d="M235.7552,-208.773C247.437,-274.7904 274.7179,-405.8075 311.124,-432.5974 339.3776,-453.3882 362.8883,-454.7941 390.0513,-432.5974 439.2731,-392.3752 456.3921,-197.3866 461.6116,-111.4338"/>
+                <polygon fill="#000000" stroke="#000000" points="465.1163,-111.4537 462.2041,-101.267 458.1282,-111.0464 465.1163,-111.4537"/>
+                <text text-anchor="middle" x="350.5877" y="-452.7974" font-family="Times,serif" font-size="14.00" fill="#000000">r</text>
+                </g>
+                <!-- Broken -->
+                <g id="node6" class="node">
+                <title>Broken</title>
+                <ellipse fill="none" stroke="#000000" cx="350.5877" cy="-248.5974" rx="39.4273" ry="39.4273"/>
+                <text text-anchor="middle" x="350.5877" y="-244.3974" font-family="Times,serif" font-size="14.00" fill="#000000">Broken</text>
+                </g>
+                <!-- Green&#45;&gt;Broken -->
+                <g id="edge11" class="edge">
+                <title>Green-&gt;Broken</title>
+                <path fill="none" stroke="#000000" d="M262.2677,-191.7053C276.5538,-200.9079 293.4741,-211.8072 308.6626,-221.591"/>
+                <polygon fill="#000000" stroke="#000000" points="307.07,-224.7284 317.3722,-227.2014 310.8607,-218.8436 307.07,-224.7284"/>
+                <text text-anchor="middle" x="289.624" y="-213.7974" font-family="Times,serif" font-size="14.00" fill="#000000">g</text>
+                </g>
+                <!-- Off&#45;&gt;Green -->
+                <g id="edge3" class="edge">
+                <title>Off-&gt;Green</title>
+                <path fill="none" stroke="#000000" d="M129.6959,-97.3981C137.3648,-114.2074 149.3764,-135.1639 165.8749,-148.5974 170.7521,-152.5685 176.3902,-155.8423 182.2538,-158.5363"/>
+                <polygon fill="#000000" stroke="#000000" points="180.994,-161.8022 191.5767,-162.3096 183.6202,-155.3135 180.994,-161.8022"/>
+                <text text-anchor="middle" x="169.3749" y="-157.7974" font-family="Times,serif" font-size="14.00" fill="#000000">g</text>
+                </g>
+                <!-- Off&#45;&gt;Off -->
+                <g id="edge5" class="edge">
+                <title>Off-&gt;Off</title>
+                <path fill="none" stroke="#000000" d="M110.8461,-97.7856C110.4643,-108.2976 113.3281,-117.0349 119.4375,-117.0349 123.3513,-117.0349 125.9331,-113.4491 127.1829,-108.1081"/>
+                <polygon fill="#000000" stroke="#000000" points="130.7003,-108.0381 128.0288,-97.7856 123.7237,-107.4663 130.7003,-108.0381"/>
+                <text text-anchor="middle" x="119.4375" y="-121.2349" font-family="Times,serif" font-size="14.00" fill="#000000">x</text>
+                </g>
+                <!-- Off&#45;&gt;Blue -->
+                <g id="edge4" class="edge">
+                <title>Off-&gt;Blue</title>
+                <path fill="none" stroke="#000000" d="M147.4681,-64.8911C160.5896,-62.4972 176.4686,-59.9945 190.8749,-58.7974 236.163,-55.0344 247.9204,-53.9279 293.124,-58.5974 297.9996,-59.1011 303.0713,-59.839 308.0935,-60.7054"/>
+                <polygon fill="#000000" stroke="#000000" points="307.777,-64.2076 318.2537,-62.6304 309.0801,-57.33 307.777,-64.2076"/>
+                <text text-anchor="middle" x="229.4995" y="-63.7974" font-family="Times,serif" font-size="14.00" fill="#000000">b</text>
+                </g>
+                <!-- Off&#45;&gt;Red -->
+                <g id="edge2" class="edge">
+                <title>Off-&gt;Red</title>
+                <path fill="none" stroke="#000000" d="M145.9404,-59.3461C194.8402,-40.153 302.2781,-5.3132 390.0513,-28.5974 403.9881,-32.2945 418.0408,-39.3174 430.0776,-46.5775"/>
+                <polygon fill="#000000" stroke="#000000" points="428.5309,-49.7403 438.8541,-52.1243 432.2708,-43.8231 428.5309,-49.7403"/>
+                <text text-anchor="middle" x="289.624" y="-27.7974" font-family="Times,serif" font-size="14.00" fill="#000000">r</text>
+                </g>
+                <!-- Blue&#45;&gt;Green -->
+                <g id="edge15" class="edge">
+                <title>Blue-&gt;Green</title>
+                <path fill="none" stroke="#000000" d="M326.0255,-93.0716C315.965,-102.0986 304.1219,-112.5006 293.124,-121.5974 285.3083,-128.0621 276.7966,-134.8097 268.6155,-141.1573"/>
+                <polygon fill="#000000" stroke="#000000" points="266.3681,-138.4704 260.5827,-147.3462 270.6404,-144.0155 266.3681,-138.4704"/>
+                <text text-anchor="middle" x="289.624" y="-131.7974" font-family="Times,serif" font-size="14.00" fill="#000000">g</text>
+                </g>
+                <!-- Blue&#45;&gt;Off -->
+                <g id="edge17" class="edge">
+                <title>Blue-&gt;Off</title>
+                <path fill="none" stroke="#000000" d="M317.1974,-73.1192C280.1855,-75.5375 218.7307,-78.4348 165.8749,-75.5974 163.3243,-75.4605 160.6984,-75.2816 158.0542,-75.0731"/>
+                <polygon fill="#000000" stroke="#000000" points="158.1621,-71.5685 147.8862,-74.1484 157.5281,-78.5397 158.1621,-71.5685"/>
+                <text text-anchor="middle" x="229.4995" y="-81.7974" font-family="Times,serif" font-size="14.00" fill="#000000">x</text>
+                </g>
+                <!-- Blue&#45;&gt;Blue -->
+                <g id="edge16" class="edge">
+                <title>Blue-&gt;Blue</title>
+                <path fill="none" stroke="#000000" d="M339.3404,-102.1424C339.2214,-113.0579 342.9705,-121.873 350.5877,-121.873 355.5865,-121.873 358.9194,-118.0767 360.5865,-112.3817"/>
+                <polygon fill="#000000" stroke="#000000" points="364.0988,-112.4925 361.8349,-102.1424 357.1502,-111.6452 364.0988,-112.4925"/>
+                <text text-anchor="middle" x="350.5877" y="-126.073" font-family="Times,serif" font-size="14.00" fill="#000000">b</text>
+                </g>
+                <!-- Blue&#45;&gt;Red -->
+                <g id="edge14" class="edge">
+                <title>Blue-&gt;Red</title>
+                <path fill="none" stroke="#000000" d="M383.8966,-70.5974C396.0074,-70.5974 409.8393,-70.5974 422.545,-70.5974"/>
+                <polygon fill="#000000" stroke="#000000" points="422.8904,-74.0975 432.8903,-70.5974 422.8903,-67.0975 422.8904,-74.0975"/>
+                <text text-anchor="middle" x="411.5513" y="-74.7974" font-family="Times,serif" font-size="14.00" fill="#000000">r</text>
+                </g>
+                <!-- Red&#45;&gt;Green -->
+                <g id="edge7" class="edge">
+                <title>Red-&gt;Green</title>
+                <path fill="none" stroke="#000000" d="M446.092,-96.0266C432.784,-113.212 412.9185,-134.8392 390.0513,-146.5974 355.5614,-164.332 311.7607,-169.9354 278.6243,-171.3251"/>
+                <polygon fill="#000000" stroke="#000000" points="278.1554,-167.8376 268.2658,-171.6383 278.367,-174.8344 278.1554,-167.8376"/>
+                <text text-anchor="middle" x="350.5877" y="-172.7974" font-family="Times,serif" font-size="14.00" fill="#000000">g</text>
+                </g>
+                <!-- Red&#45;&gt;Off -->
+                <g id="edge9" class="edge">
+                <title>Red-&gt;Off</title>
+                <path fill="none" stroke="#000000" d="M440.0218,-50.3414C432.2718,-44.0519 423.4812,-37.2833 415.0513,-31.5974 366.3757,1.2344 344.5293,3.2089 286.124,-2.7974 243.1129,-7.2206 230.7284,-5.8278 190.8749,-22.5974 176.5785,-28.6131 162.1304,-37.6423 150.0042,-46.2522"/>
+                <polygon fill="#000000" stroke="#000000" points="147.616,-43.6632 141.6202,-52.3982 151.7546,-49.3087 147.616,-43.6632"/>
+                <text text-anchor="middle" x="289.624" y="-7.7974" font-family="Times,serif" font-size="14.00" fill="#000000">x</text>
+                </g>
+                <!-- Red&#45;&gt;Blue -->
+                <g id="edge8" class="edge">
+                <title>Red-&gt;Blue</title>
+                <path fill="none" stroke="#000000" d="M435.6373,-57.7517C429.0221,-55.2859 421.898,-53.0757 415.0513,-51.7974 406.9041,-50.2763 398.3104,-51.05 390.1466,-52.9611"/>
+                <polygon fill="#000000" stroke="#000000" points="389.0849,-49.6248 380.4605,-55.7787 391.0401,-56.3462 389.0849,-49.6248"/>
+                <text text-anchor="middle" x="411.5513" y="-56.7974" font-family="Times,serif" font-size="14.00" fill="#000000">b</text>
+                </g>
+                <!-- Red&#45;&gt;Red -->
+                <g id="edge6" class="edge">
+                <title>Red-&gt;Red</title>
+                <path fill="none" stroke="#000000" d="M453.9028,-100.0126C453.6933,-110.5766 456.9401,-119.1893 463.6432,-119.1893 467.9374,-119.1893 470.8132,-115.6547 472.2704,-110.3367"/>
+                <polygon fill="#000000" stroke="#000000" points="475.7913,-110.3302 473.3837,-100.0126 468.8317,-109.5796 475.7913,-110.3302"/>
+                <text text-anchor="middle" x="463.6432" y="-123.3893" font-family="Times,serif" font-size="14.00" fill="#000000">r</text>
+                </g>
+                <!-- Broken&#45;&gt;Broken -->
+                <g id="edge18" class="edge">
+                <title>Broken-&gt;Broken</title>
+                <path fill="none" stroke="#000000" d="M347.8042,-288.0782C347.9753,-298.3304 348.9031,-306.0611 350.5877,-306.0611 351.6405,-306.0611 352.3978,-303.0413 352.8594,-298.2735"/>
+                <polygon fill="#000000" stroke="#000000" points="356.3654,-298.2411 353.3712,-288.0782 349.3742,-297.8901 356.3654,-298.2411"/>
+                <text text-anchor="middle" x="350.5877" y="-310.2611" font-family="Times,serif" font-size="14.00" fill="#000000">r</text>
+                </g>
+                <!-- Broken&#45;&gt;Broken -->
+                <g id="edge19" class="edge">
+                <title>Broken-&gt;Broken</title>
+                <path fill="none" stroke="#000000" d="M345.1141,-287.812C344.3979,-307.0183 346.2224,-324.0611 350.5877,-324.0611 354.1685,-324.0611 356.0397,-312.5928 356.2012,-297.8695"/>
+                <polygon fill="#000000" stroke="#000000" points="359.7002,-297.7623 356.0613,-287.812 352.7009,-297.8598 359.7002,-297.7623"/>
+                <text text-anchor="middle" x="350.5877" y="-328.2611" font-family="Times,serif" font-size="14.00" fill="#000000">g</text>
+                </g>
+                <!-- Broken&#45;&gt;Broken -->
+                <g id="edge20" class="edge">
+                <title>Broken-&gt;Broken</title>
+                <path fill="none" stroke="#000000" d="M343.0159,-287.4865C340.637,-314.9064 343.1609,-342.0611 350.5877,-342.0611 357.0861,-342.0611 359.8308,-321.2708 358.8218,-297.704"/>
+                <polygon fill="#000000" stroke="#000000" points="362.2991,-297.2391 358.1595,-287.4865 355.3137,-297.692 362.2991,-297.2391"/>
+                <text text-anchor="middle" x="350.5877" y="-346.2611" font-family="Times,serif" font-size="14.00" fill="#000000">b</text>
+                </g>
+                <!-- Broken&#45;&gt;Broken -->
+                <g id="edge21" class="edge">
+                <title>Broken-&gt;Broken</title>
+                <path fill="none" stroke="#000000" d="M341.3772,-287.1498C336.8242,-322.2962 339.8943,-360.0611 350.5877,-360.0611 360.2368,-360.0611 363.6789,-329.312 360.914,-297.4839"/>
+                <polygon fill="#000000" stroke="#000000" points="364.3515,-296.7163 359.7982,-287.1498 357.392,-297.4678 364.3515,-296.7163"/>
+                <text text-anchor="middle" x="350.5877" y="-364.2611" font-family="Times,serif" font-size="14.00" fill="#000000">x</text>
+                </g>
+                </g>
+                </svg>
+            <p>Looking at this new diagram, we see how, even though we only have three more states and three more symbols than before, the automaton is much more complicated than before! I used <a href="https://github.com/ganeshutah/Jove">Jove</a>, and <a href="https://edotor.net">edotor.net</a> to create and render the <a href="https://en.wikipedia.org/wiki/DOT_(graph_description_language)">dot code</a>, and they keep up with it, but you can already tell that this is a difficult problem to visualize.</p> 
+            <p>But importantly, look at the function performed by the final vs non-final states: any string of transitions that ends with the FSA in a final state corresponds to a string of button presses that ends with a functional lamp, while any string of transitions that ends with the FSA in the non-final "Broken" state, corresponds to a string of button presses that leaves you with a broken lamp. Try this for yourself: the strings 'rgbrgbrgb', 'rrrrrrrrrrr', and 'gbgrgxgbgrgxgbgrgx' all leave you in a final state and with a still-functioning lamp. Because the FSA accepts these strings, they are said to be in the FSA's <b>formal language</b>, (a set of strings which are defined by a mathematical rule, in this case, the rule of being accepted by an FSA). On the other hand, 'gg', 'rgbrgbrgbrrggbb', and 'grgbgg' are strings not in the language of this FSA.</p>
+
+            <h5>RGB Lamp II</h5>
+            <p>Suppose you take your new lamp apart and reassemble it, and you don't succeed at fixing the short in the green button, but you do manage to unlock the hidden colors that the manufacturer was trying to keep from you: Yellow, Cyan, Magenta, and White. Now, instead of a new color immediately deactivating an old color, multiple colors are allowed to shine at the same time, which means you can have Red+Green to make Yellow, Red+Blue to make Magenta, and Green+Blue to make Cyan. If you press a color's button a second time, it will turn that color's bulb off (except for green, which still causes the lamp to short). The 'x' button shuts off all three bulbs. Here is an FSA diagram to model your upgraded lamp:</p>
+            <svg preserveAspectRatio="xMaxYMax meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1005pt" height="553pt" viewBox="0.00 0.00 1004.57 552.80">
+                <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 548.8)">
+                <title>G</title>
+                <polygon fill="none" stroke="transparent" points="-4,4 -4,-548.8 1000.5711,-548.8 1000.5711,4 -4,4"/>
+                <g id="node1" class="node">
+                <title/>
+                </g>
+                <!-- Off -->
+                <g id="node9" class="node">
+                <title>Off</title>
+                <ellipse fill="none" stroke="#000000" cx="119.4375" cy="-222" rx="24.3838" ry="24.3838"/>
+                <ellipse fill="none" stroke="#000000" cx="119.4375" cy="-222" rx="28.375" ry="28.375"/>
+                <text text-anchor="middle" x="119.4375" y="-217.8" font-family="Times,serif" font-size="14.00" fill="#000000">Off</text>
+                </g>
+                <!-- &#45;&gt;Off -->
+                <g id="edge1" class="edge">
+                <title>-&gt;Off</title>
+                <path fill="none" stroke="#000000" d="M54.2343,-222C62.5022,-222 71.7511,-222 80.6259,-222"/>
+                <polygon fill="#000000" stroke="#000000" points="80.7912,-225.5001 90.7911,-222 80.7911,-218.5001 80.7912,-225.5001"/>
+                </g>
+                <!-- Broken -->
+                <g id="node2" class="node">
+                <title>Broken</title>
+                <ellipse fill="none" stroke="#000000" cx="957.1074" cy="-262" rx="39.4273" ry="39.4273"/>
+                <text text-anchor="middle" x="957.1074" y="-257.8" font-family="Times,serif" font-size="14.00" fill="#000000">Broken</text>
+                </g>
+                <!-- Broken&#45;&gt;Broken -->
+                <g id="edge34" class="edge">
+                <title>Broken-&gt;Broken</title>
+                <path fill="none" stroke="#000000" d="M954.3239,-301.4808C954.495,-311.733 955.4229,-319.4637 957.1074,-319.4637 958.1603,-319.4637 958.9175,-316.4439 959.3792,-311.676"/>
+                <polygon fill="#000000" stroke="#000000" points="962.8851,-311.6437 959.8909,-301.4808 955.8939,-311.2927 962.8851,-311.6437"/>
+                <text text-anchor="middle" x="957.1074" y="-323.6637" font-family="Times,serif" font-size="14.00" fill="#000000">r</text>
+                </g>
+                <!-- Broken&#45;&gt;Broken -->
+                <g id="edge35" class="edge">
+                <title>Broken-&gt;Broken</title>
+                <path fill="none" stroke="#000000" d="M951.6338,-301.2146C950.9177,-320.4209 952.7422,-337.4637 957.1074,-337.4637 960.6883,-337.4637 962.5595,-325.9954 962.721,-311.2721"/>
+                <polygon fill="#000000" stroke="#000000" points="966.2199,-311.1649 962.581,-301.2146 959.2206,-311.2623 966.2199,-311.1649"/>
+                <text text-anchor="middle" x="957.1074" y="-341.6637" font-family="Times,serif" font-size="14.00" fill="#000000">g</text>
+                </g>
+                <!-- Broken&#45;&gt;Broken -->
+                <g id="edge36" class="edge">
+                <title>Broken-&gt;Broken</title>
+                <path fill="none" stroke="#000000" d="M949.5356,-300.8891C947.1567,-328.309 949.6807,-355.4637 957.1074,-355.4637 963.6058,-355.4637 966.3505,-334.6733 965.3415,-311.1066"/>
+                <polygon fill="#000000" stroke="#000000" points="968.8188,-310.6417 964.6792,-300.8891 961.8335,-311.0946 968.8188,-310.6417"/>
+                <text text-anchor="middle" x="957.1074" y="-359.6637" font-family="Times,serif" font-size="14.00" fill="#000000">b</text>
+                </g>
+                <!-- Broken&#45;&gt;Broken -->
+                <g id="edge37" class="edge">
+                <title>Broken-&gt;Broken</title>
+                <path fill="none" stroke="#000000" d="M947.8969,-300.5524C943.3439,-335.6988 946.4141,-373.4637 957.1074,-373.4637 966.7565,-373.4637 970.1986,-342.7146 967.4337,-310.8865"/>
+                <polygon fill="#000000" stroke="#000000" points="970.8713,-310.1189 966.3179,-300.5524 963.9117,-310.8704 970.8713,-310.1189"/>
+                <text text-anchor="middle" x="957.1074" y="-377.6637" font-family="Times,serif" font-size="14.00" fill="#000000">x</text>
+                </g>
+                <!-- Green -->
+                <g id="node3" class="node">
+                <title>Green</title>
+                <ellipse fill="none" stroke="#000000" cx="474.3259" cy="-438" rx="34.7366" ry="34.7366"/>
+                <ellipse fill="none" stroke="#000000" cx="474.3259" cy="-438" rx="38.7495" ry="38.7495"/>
+                <text text-anchor="middle" x="474.3259" y="-433.8" font-family="Times,serif" font-size="14.00" fill="#000000">Green</text>
+                </g>
+                <!-- Green&#45;&gt;Broken -->
+                <g id="edge11" class="edge">
+                <title>Green-&gt;Broken</title>
+                <path fill="none" stroke="#000000" d="M496.6683,-469.7306C517.7814,-495.6422 552.0241,-528 591.3709,-528 591.3709,-528 591.3709,-528 831.182,-528 878.797,-528 923.8278,-387.0033 944.7983,-310.3164"/>
+                <polygon fill="#000000" stroke="#000000" points="948.2494,-310.9611 947.4755,-300.3946 941.4911,-309.1375 948.2494,-310.9611"/>
+                <text text-anchor="middle" x="706.0861" y="-532.2" font-family="Times,serif" font-size="14.00" fill="#000000">g</text>
+                </g>
+                <!-- Cyan -->
+                <g id="node5" class="node">
+                <title>Cyan</title>
+                <ellipse fill="none" stroke="#000000" cx="591.3709" cy="-199" rx="31.3499" ry="31.3499"/>
+                <ellipse fill="none" stroke="#000000" cx="591.3709" cy="-199" rx="35.341" ry="35.341"/>
+                <text text-anchor="middle" x="591.3709" y="-194.8" font-family="Times,serif" font-size="14.00" fill="#000000">Cyan</text>
+                </g>
+                <!-- Green&#45;&gt;Cyan -->
+                <g id="edge12" class="edge">
+                <title>Green-&gt;Cyan</title>
+                <path fill="none" stroke="#000000" d="M496.7404,-406.1038C502.2018,-398.0149 507.9169,-389.2714 512.9505,-381 525.047,-361.1227 528.1226,-356.0914 537.9505,-335 552.1686,-304.4868 566.0007,-269.0635 576.0265,-242.0198"/>
+                <polygon fill="#000000" stroke="#000000" points="579.3754,-243.0536 579.5417,-232.4601 572.8055,-240.6378 579.3754,-243.0536"/>
+                <text text-anchor="middle" x="534.4505" y="-353.2" font-family="Times,serif" font-size="14.00" fill="#000000">b</text>
+                </g>
+                <!-- Yellow -->
+                <g id="node7" class="node">
+                <title>Yellow</title>
+                <ellipse fill="none" stroke="#000000" cx="831.182" cy="-315" rx="39.427" ry="39.427"/>
+                <ellipse fill="none" stroke="#000000" cx="831.182" cy="-315" rx="43.4235" ry="43.4235"/>
+                <text text-anchor="middle" x="831.182" y="-310.8" font-family="Times,serif" font-size="14.00" fill="#000000">Yellow</text>
+                </g>
+                <!-- Green&#45;&gt;Yellow -->
+                <g id="edge10" class="edge">
+                <title>Green-&gt;Yellow</title>
+                <path fill="none" stroke="#000000" d="M513.0689,-434.1899C571.4184,-427.239 684.1247,-409.0348 769.7203,-366 777.3777,-362.1501 784.9204,-357.1861 791.9576,-351.8703"/>
+                <polygon fill="#000000" stroke="#000000" points="794.3076,-354.4736 799.9628,-345.5142 789.9548,-348.9914 794.3076,-354.4736"/>
+                <text text-anchor="middle" x="647.1216" y="-414.2" font-family="Times,serif" font-size="14.00" fill="#000000">r</text>
+                </g>
+                <!-- Green&#45;&gt;Off -->
+                <g id="edge13" class="edge">
+                <title>Green-&gt;Off</title>
+                <path fill="none" stroke="#000000" d="M435.6495,-441.5783C371.1931,-445.3009 241.4385,-442.9186 165.8749,-374 149.0428,-358.6481 134.6044,-299.8605 126.4747,-260.0585"/>
+                <polygon fill="#000000" stroke="#000000" points="129.8846,-259.2603 124.4977,-250.1371 123.0195,-260.6283 129.8846,-259.2603"/>
+                <text text-anchor="middle" x="273.5587" y="-433.2" font-family="Times,serif" font-size="14.00" fill="#000000">x</text>
+                </g>
+                <!-- Red -->
+                <g id="node4" class="node">
+                <title>Red</title>
+                <ellipse fill="none" stroke="#000000" cx="221.4668" cy="-245" rx="26.6721" ry="26.6721"/>
+                <ellipse fill="none" stroke="#000000" cx="221.4668" cy="-245" rx="30.6841" ry="30.6841"/>
+                <text text-anchor="middle" x="221.4668" y="-240.8" font-family="Times,serif" font-size="14.00" fill="#000000">Red</text>
+                </g>
+                <!-- Magenta -->
+                <g id="node6" class="node">
+                <title>Magenta</title>
+                <ellipse fill="none" stroke="#000000" cx="343.8801" cy="-244" rx="44.6579" ry="44.6579"/>
+                <ellipse fill="none" stroke="#000000" cx="343.8801" cy="-244" rx="48.6433" ry="48.6433"/>
+                <text text-anchor="middle" x="343.8801" y="-239.8" font-family="Times,serif" font-size="14.00" fill="#000000">Magenta</text>
+                </g>
+                <!-- Red&#45;&gt;Magenta -->
+                <g id="edge8" class="edge">
+                <title>Red-&gt;Magenta</title>
+                <path fill="none" stroke="#000000" d="M252.3568,-244.7477C262.2263,-244.667 273.5027,-244.5749 284.6892,-244.4835"/>
+                <polygon fill="#000000" stroke="#000000" points="284.9233,-247.9818 294.8943,-244.4002 284.866,-240.9821 284.9233,-247.9818"/>
+                <text text-anchor="middle" x="273.5587" y="-249.2" font-family="Times,serif" font-size="14.00" fill="#000000">b</text>
+                </g>
+                <!-- Red&#45;&gt;Yellow -->
+                <g id="edge7" class="edge">
+                <title>Red-&gt;Yellow</title>
+                <path fill="none" stroke="#000000" d="M242.7023,-267.4252C256.3089,-280.1478 275.1119,-294.9074 295.0587,-302 339.5344,-317.8145 649.9905,-316.7312 777.1059,-315.598"/>
+                <polygon fill="#000000" stroke="#000000" points="777.4147,-319.0954 787.3818,-315.5027 777.3498,-312.0957 777.4147,-319.0954"/>
+                <text text-anchor="middle" x="534.4505" y="-320.2" font-family="Times,serif" font-size="14.00" fill="#000000">g</text>
+                </g>
+                <!-- Red&#45;&gt;Off -->
+                <g id="edge6" class="edge">
+                <title>Red-&gt;Off</title>
+                <path fill="none" stroke="#000000" d="M197.7189,-224.8917C190.2408,-219.7292 181.6345,-214.8797 172.8749,-212.2 167.576,-210.579 161.8948,-210.2181 156.2859,-210.6244"/>
+                <polygon fill="#000000" stroke="#000000" points="155.7531,-207.165 146.3661,-212.0777 156.7679,-214.091 155.7531,-207.165"/>
+                <text text-anchor="middle" x="169.3749" y="-217.2" font-family="Times,serif" font-size="14.00" fill="#000000">r</text>
+                </g>
+                <!-- Red&#45;&gt;Off -->
+                <g id="edge9" class="edge">
+                <title>Red-&gt;Off</title>
+                <path fill="none" stroke="#000000" d="M192.5492,-255.4887C183.8581,-257.2337 174.3762,-257.713 165.8749,-255 160.0802,-253.1507 154.3897,-250.2855 149.0877,-246.9991"/>
+                <polygon fill="#000000" stroke="#000000" points="150.8105,-243.937 140.5818,-241.1758 146.8561,-249.713 150.8105,-243.937"/>
+                <text text-anchor="middle" x="169.3749" y="-261.2" font-family="Times,serif" font-size="14.00" fill="#000000">x</text>
+                </g>
+                <!-- Cyan&#45;&gt;Broken -->
+                <g id="edge23" class="edge">
+                <title>Cyan-&gt;Broken</title>
+                <path fill="none" stroke="#000000" d="M626.6681,-193.9382C632.7045,-193.1977 638.9209,-192.5132 644.7913,-192 654.8342,-191.1221 657.3732,-191.2223 667.4519,-191 701.7851,-190.2428 710.8246,-185.4844 744.7203,-191 803.9955,-200.6454 869.0643,-224.5005 911.3543,-241.9057"/>
+                <polygon fill="#000000" stroke="#000000" points="910.2317,-245.2296 920.8086,-245.8459 912.9246,-238.7683 910.2317,-245.2296"/>
+                <text text-anchor="middle" x="766.2203" y="-200.2" font-family="Times,serif" font-size="14.00" fill="#000000">g</text>
+                </g>
+                <!-- Cyan&#45;&gt;Green -->
+                <g id="edge24" class="edge">
+                <title>Cyan-&gt;Green</title>
+                <path fill="none" stroke="#000000" d="M585.243,-233.958C577.8776,-269.9012 563.2344,-326.597 537.9505,-370 530.6162,-382.5903 520.5603,-394.7437 510.6082,-405.2073"/>
+                <polygon fill="#000000" stroke="#000000" points="507.9408,-402.9279 503.4203,-412.5099 512.9296,-407.8383 507.9408,-402.9279"/>
+                <text text-anchor="middle" x="534.4505" y="-385.2" font-family="Times,serif" font-size="14.00" fill="#000000">b</text>
+                </g>
+                <!-- White -->
+                <g id="node8" class="node">
+                <title>White</title>
+                <ellipse fill="none" stroke="#000000" cx="706.0861" cy="-239" rx="34.755" ry="34.755"/>
+                <ellipse fill="none" stroke="#000000" cx="706.0861" cy="-239" rx="38.7689" ry="38.7689"/>
+                <text text-anchor="middle" x="706.0861" y="-234.8" font-family="Times,serif" font-size="14.00" fill="#000000">White</text>
+                </g>
+                <!-- Cyan&#45;&gt;White -->
+                <g id="edge22" class="edge">
+                <title>Cyan-&gt;White</title>
+                <path fill="none" stroke="#000000" d="M624.8597,-210.6772C635.8128,-214.4964 648.1794,-218.8085 659.8988,-222.895"/>
+                <polygon fill="#000000" stroke="#000000" points="658.9508,-226.271 669.5456,-226.2587 661.2556,-219.6613 658.9508,-226.271"/>
+                <text text-anchor="middle" x="647.1216" y="-223.2" font-family="Times,serif" font-size="14.00" fill="#000000">r</text>
+                </g>
+                <!-- Cyan&#45;&gt;Off -->
+                <g id="edge25" class="edge">
+                <title>Cyan-&gt;Off</title>
+                <path fill="none" stroke="#000000" d="M581.849,-164.6638C567.0009,-119.5543 533.6885,-46 474.3259,-46 221.4668,-46 221.4668,-46 221.4668,-46 158.3561,-46 133.6387,-131.7493 124.4655,-183.5409"/>
+                <polygon fill="#000000" stroke="#000000" points="120.9602,-183.2858 122.7834,-193.7226 127.8666,-184.4268 120.9602,-183.2858"/>
+                <text text-anchor="middle" x="343.8801" y="-50.2" font-family="Times,serif" font-size="14.00" fill="#000000">x</text>
+                </g>
+                <!-- Magenta&#45;&gt;Red -->
+                <g id="edge28" class="edge">
+                <title>Magenta-&gt;Red</title>
+                <path fill="none" stroke="#000000" d="M298.797,-225.0437C289.3519,-223.0078 279.4179,-222.2811 270.0587,-224.2 266.175,-224.9963 262.2182,-226.1162 258.3236,-227.4278"/>
+                <polygon fill="#000000" stroke="#000000" points="256.9653,-224.1995 248.8477,-231.008 259.4394,-230.7477 256.9653,-224.1995"/>
+                <text text-anchor="middle" x="273.5587" y="-229.2" font-family="Times,serif" font-size="14.00" fill="#000000">b</text>
+                </g>
+                <!-- Magenta&#45;&gt;White -->
+                <g id="edge27" class="edge">
+                <title>Magenta-&gt;White</title>
+                <path fill="none" stroke="#000000" d="M392.7024,-244.5215C449.0997,-244.9627 544.6732,-245.2151 626.7913,-243 636.6088,-242.7352 647.1038,-242.3079 657.1388,-241.8291"/>
+                <polygon fill="#000000" stroke="#000000" points="657.5696,-245.3121 667.382,-241.3162 657.2194,-238.3208 657.5696,-245.3121"/>
+                <text text-anchor="middle" x="534.4505" y="-249.2" font-family="Times,serif" font-size="14.00" fill="#000000">g</text>
+                </g>
+                <!-- Magenta&#45;&gt;Off -->
+                <g id="edge29" class="edge">
+                <title>Magenta-&gt;Off</title>
+                <path fill="none" stroke="#000000" d="M300.7843,-267.7167C285.8152,-274.729 268.6212,-281.4702 252.0587,-285 225.4632,-290.668 217.8148,-288.7004 190.8749,-285 179.4438,-283.4298 175.5532,-284.2822 165.8749,-278 156.3039,-271.7875 147.7048,-262.9855 140.5837,-254.1954"/>
+                <polygon fill="#000000" stroke="#000000" points="143.3269,-252.0208 134.4738,-246.2008 137.7652,-256.2714 143.3269,-252.0208"/>
+                <text text-anchor="middle" x="221.4668" y="-293.2" font-family="Times,serif" font-size="14.00" fill="#000000">x</text>
+                </g>
+                <!-- Blue -->
+                <g id="node10" class="node">
+                <title>Blue</title>
+                <ellipse fill="none" stroke="#000000" cx="474.3259" cy="-175" rx="29.0795" ry="29.0795"/>
+                <ellipse fill="none" stroke="#000000" cx="474.3259" cy="-175" rx="33.0527" ry="33.0527"/>
+                <text text-anchor="middle" x="474.3259" y="-170.8" font-family="Times,serif" font-size="14.00" fill="#000000">Blue</text>
+                </g>
+                <!-- Magenta&#45;&gt;Blue -->
+                <g id="edge26" class="edge">
+                <title>Magenta-&gt;Blue</title>
+                <path fill="none" stroke="#000000" d="M390.8996,-229.9118C400.0133,-226.4981 409.3273,-222.5104 417.7014,-218 425.5126,-213.7928 433.4012,-208.5584 440.708,-203.2054"/>
+                <polygon fill="#000000" stroke="#000000" points="443.1338,-205.758 448.9787,-196.9213 438.8989,-200.1843 443.1338,-205.758"/>
+                <text text-anchor="middle" x="414.2014" y="-225.2" font-family="Times,serif" font-size="14.00" fill="#000000">r</text>
+                </g>
+                <!-- Yellow&#45;&gt;Broken -->
+                <g id="edge19" class="edge">
+                <title>Yellow-&gt;Broken</title>
+                <path fill="none" stroke="#000000" d="M871.3718,-298.0847C884.1143,-292.7217 898.2949,-286.7533 911.3957,-281.2393"/>
+                <polygon fill="#000000" stroke="#000000" points="912.8492,-284.425 920.7084,-277.3198 910.1337,-277.9732 912.8492,-284.425"/>
+                <text text-anchor="middle" x="896.1438" y="-293.2" font-family="Times,serif" font-size="14.00" fill="#000000">g</text>
+                </g>
+                <!-- Yellow&#45;&gt;Green -->
+                <g id="edge18" class="edge">
+                <title>Yellow-&gt;Green</title>
+                <path fill="none" stroke="#000000" d="M805.8363,-350.726C790.3316,-369.9677 768.864,-392.4693 744.7203,-406 663.0673,-451.7604 631.405,-440.7569 537.9505,-446 533.0667,-446.274 527.9851,-446.2183 522.9174,-445.938"/>
+                <polygon fill="#000000" stroke="#000000" points="522.8585,-442.4211 512.603,-445.0808 522.2787,-449.397 522.8585,-442.4211"/>
+                <text text-anchor="middle" x="647.1216" y="-445.2" font-family="Times,serif" font-size="14.00" fill="#000000">r</text>
+                </g>
+                <!-- Yellow&#45;&gt;White -->
+                <g id="edge20" class="edge">
+                <title>Yellow-&gt;White</title>
+                <path fill="none" stroke="#000000" d="M807.8821,-277.8481C797.7981,-264.9657 784.8228,-251.8471 769.7203,-244.2 765.0802,-241.8505 760.0033,-240.1876 754.8056,-239.0385"/>
+                <polygon fill="#000000" stroke="#000000" points="755.1739,-235.5528 744.7443,-237.4166 754.0598,-242.4636 755.1739,-235.5528"/>
+                <text text-anchor="middle" x="766.2203" y="-249.2" font-family="Times,serif" font-size="14.00" fill="#000000">b</text>
+                </g>
+                <!-- Yellow&#45;&gt;Off -->
+                <g id="edge21" class="edge">
+                <title>Yellow-&gt;Off</title>
+                <path fill="none" stroke="#000000" d="M789.0387,-326.1975C782.6009,-327.6428 776.0076,-328.9739 769.7203,-330 613.2209,-355.5416 572.7714,-360 414.2014,-360 221.4668,-360 221.4668,-360 221.4668,-360 171.2321,-360 142.9113,-300.1441 129.4287,-259.273"/>
+                <polygon fill="#000000" stroke="#000000" points="132.7253,-258.0884 126.3923,-249.5947 126.0463,-260.1839 132.7253,-258.0884"/>
+                <text text-anchor="middle" x="474.3259" y="-364.2" font-family="Times,serif" font-size="14.00" fill="#000000">x</text>
+                </g>
+                <!-- White&#45;&gt;Broken -->
+                <g id="edge31" class="edge">
+                <title>White-&gt;Broken</title>
+                <path fill="none" stroke="#000000" d="M744.7754,-238.2259C750.7829,-238.1319 756.9186,-238.0512 762.7203,-238 812.5955,-237.5597 825.2115,-239.5538 874.6438,-246.2 885.5942,-247.6723 897.2893,-249.6578 908.3281,-251.7237"/>
+                <polygon fill="#000000" stroke="#000000" points="907.7599,-255.1785 918.2411,-253.631 909.0826,-248.3045 907.7599,-255.1785"/>
+                <text text-anchor="middle" x="831.182" y="-251.2" font-family="Times,serif" font-size="14.00" fill="#000000">g</text>
+                </g>
+                <!-- White&#45;&gt;Cyan -->
+                <g id="edge30" class="edge">
+                <title>White-&gt;Cyan</title>
+                <path fill="none" stroke="#000000" d="M677.5386,-212.5284C669.1018,-206.2803 659.4348,-200.4851 649.4519,-197.2 645.4091,-195.8696 641.1215,-195.0266 636.7795,-194.5465"/>
+                <polygon fill="#000000" stroke="#000000" points="636.8054,-191.0433 626.6391,-194.0261 636.4465,-198.0341 636.8054,-191.0433"/>
+                <text text-anchor="middle" x="647.1216" y="-202.2" font-family="Times,serif" font-size="14.00" fill="#000000">r</text>
+                </g>
+                <!-- White&#45;&gt;Yellow -->
+                <g id="edge32" class="edge">
+                <title>White-&gt;Yellow</title>
+                <path fill="none" stroke="#000000" d="M739.2811,-259.1671C753.3189,-267.6955 769.9079,-277.7739 785.1012,-287.0043"/>
+                <polygon fill="#000000" stroke="#000000" points="783.4919,-290.1219 793.8556,-292.3229 787.1265,-284.1394 783.4919,-290.1219"/>
+                <text text-anchor="middle" x="766.2203" y="-281.2" font-family="Times,serif" font-size="14.00" fill="#000000">b</text>
+                </g>
+                <!-- White&#45;&gt;Off -->
+                <g id="edge33" class="edge">
+                <title>White-&gt;Off</title>
+                <path fill="none" stroke="#000000" d="M696.3742,-201.3933C677.8798,-134.0876 635.4975,0 591.3709,0 221.4668,0 221.4668,0 221.4668,0 183.7899,0 183.9558,-30.945 165.8749,-64 145.0755,-102.0249 132.6257,-150.4198 125.9304,-183.5695"/>
+                <polygon fill="#000000" stroke="#000000" points="122.4213,-183.281 123.9555,-193.7642 129.2935,-184.6124 122.4213,-183.281"/>
+                <text text-anchor="middle" x="414.2014" y="-4.2" font-family="Times,serif" font-size="14.00" fill="#000000">x</text>
+                </g>
+                <!-- Off&#45;&gt;Green -->
+                <g id="edge3" class="edge">
+                <title>Off-&gt;Green</title>
+                <path fill="none" stroke="#000000" d="M122.3477,-250.3233C127.8719,-298.0156 141.5537,-391.1969 165.8749,-412 238.9033,-474.4647 360.4098,-462.3502 427.0364,-449.368"/>
+                <polygon fill="#000000" stroke="#000000" points="427.7477,-452.795 436.8493,-447.3718 426.3523,-445.9355 427.7477,-452.795"/>
+                <text text-anchor="middle" x="273.5587" y="-460.2" font-family="Times,serif" font-size="14.00" fill="#000000">g</text>
+                </g>
+                <!-- Off&#45;&gt;Red -->
+                <g id="edge2" class="edge">
+                <title>Off-&gt;Red</title>
+                <path fill="none" stroke="#000000" d="M147.3174,-228.2849C157.9046,-230.6715 170.1783,-233.4383 181.6561,-236.0257"/>
+                <polygon fill="#000000" stroke="#000000" points="180.9504,-239.4543 191.4753,-238.2391 182.4898,-232.6257 180.9504,-239.4543"/>
+                <text text-anchor="middle" x="169.3749" y="-238.2" font-family="Times,serif" font-size="14.00" fill="#000000">r</text>
+                </g>
+                <!-- Off&#45;&gt;Off -->
+                <g id="edge5" class="edge">
+                <title>Off-&gt;Off</title>
+                <path fill="none" stroke="#000000" d="M110.8461,-249.1882C110.4643,-259.7002 113.3281,-268.4375 119.4375,-268.4375 123.3513,-268.4375 125.9331,-264.8517 127.1829,-259.5107"/>
+                <polygon fill="#000000" stroke="#000000" points="130.7003,-259.4407 128.0288,-249.1882 123.7237,-258.8689 130.7003,-259.4407"/>
+                <text text-anchor="middle" x="119.4375" y="-272.6375" font-family="Times,serif" font-size="14.00" fill="#000000">x</text>
+                </g>
+                <!-- Off&#45;&gt;Blue -->
+                <g id="edge4" class="edge">
+                <title>Off-&gt;Blue</title>
+                <path fill="none" stroke="#000000" d="M131.4366,-196.1627C139.3061,-181.9669 150.9154,-165.2169 165.8749,-155 205.1803,-128.1555 222.7856,-135.7489 270.0587,-130.2 327.8099,-123.4211 393.2516,-142.6594 434.1567,-158.0141"/>
+                <polygon fill="#000000" stroke="#000000" points="432.9153,-161.2865 443.505,-161.6167 435.4325,-154.7548 432.9153,-161.2865"/>
+                <text text-anchor="middle" x="273.5587" y="-135.2" font-family="Times,serif" font-size="14.00" fill="#000000">b</text>
+                </g>
+                <!-- Blue&#45;&gt;Cyan -->
+                <g id="edge15" class="edge">
+                <title>Blue-&gt;Cyan</title>
+                <path fill="none" stroke="#000000" d="M506.9295,-181.6853C519.2192,-184.2053 533.4199,-187.1172 546.6278,-189.8255"/>
+                <polygon fill="#000000" stroke="#000000" points="545.9871,-193.2668 556.4863,-191.8469 547.3932,-186.4095 545.9871,-193.2668"/>
+                <text text-anchor="middle" x="534.4505" y="-192.2" font-family="Times,serif" font-size="14.00" fill="#000000">g</text>
+                </g>
+                <!-- Blue&#45;&gt;Magenta -->
+                <g id="edge14" class="edge">
+                <title>Blue-&gt;Magenta</title>
+                <path fill="none" stroke="#000000" d="M443.0763,-186.5717C432.6021,-190.7898 420.9786,-195.8476 410.7014,-201.2 405.0082,-204.165 399.1738,-207.4686 393.4383,-210.8892"/>
+                <polygon fill="#000000" stroke="#000000" points="391.2472,-208.1265 384.5412,-216.329 394.8986,-214.0987 391.2472,-208.1265"/>
+                <text text-anchor="middle" x="414.2014" y="-206.2" font-family="Times,serif" font-size="14.00" fill="#000000">r</text>
+                </g>
+                <!-- Blue&#45;&gt;Off -->
+                <g id="edge16" class="edge">
+                <title>Blue-&gt;Off</title>
+                <path fill="none" stroke="#000000" d="M447.8142,-154.8574C432.5044,-144.2585 412.4229,-132.0361 392.7014,-125 340.9388,-106.5325 324.6442,-102.8089 270.0587,-109.2 221.1355,-114.9281 199.0034,-110.5473 165.8749,-147 154.9118,-159.0631 145.0376,-174.0602 137.2419,-187.4662"/>
+                <polygon fill="#000000" stroke="#000000" points="134.0469,-186.0068 132.1891,-196.4375 140.1461,-189.442 134.0469,-186.0068"/>
+                <text text-anchor="middle" x="273.5587" y="-114.2" font-family="Times,serif" font-size="14.00" fill="#000000">b</text>
+                </g>
+                <!-- Blue&#45;&gt;Off -->
+                <g id="edge17" class="edge">
+                <title>Blue-&gt;Off</title>
+                <path fill="none" stroke="#000000" d="M440.9687,-175.5609C383.8554,-177.1611 264.0042,-183.3195 165.8749,-207 162.8431,-207.7316 159.723,-208.563 156.6027,-209.4504"/>
+                <polygon fill="#000000" stroke="#000000" points="155.3082,-206.1849 146.7433,-212.4214 157.3279,-212.8872 155.3082,-206.1849"/>
+                <text text-anchor="middle" x="273.5587" y="-193.2" font-family="Times,serif" font-size="14.00" fill="#000000">x</text>
+                </g>
+                </g>
+                </svg>
+            <p>Notice that you now have to be even more careful about when you press the 'g' button: no matter how many times you press the 'r' and 'b' buttons in between two presses of the 'g' button, you will still break your lamp, unless if you press the 'x' button in between! This means that the strings 'rgbrgbrgb' and 'gbgrgxgbgrgxgbgrgx', which were in the language of the previous FSA, are not in the language of this new FSA. Strings such as 'rbrbrb', 'gxgxgx', and 'rgbrxgbrrbbxgxbbbbbb' still are accepted by this FSA (Try them out for yourself!).</p>
+
+            <h5>Regular Languages and the Chomsky Hierarchy</h5>
+            <p>There are infinitely many FSAs possible, and each FSA defines a corresponding language of every string they accept. The set of all sets of strings for which an FSA can be devised, is known as the <b><a href="https://en.wikipedia.org/wiki/Regular_language">Regular Language Family</a></b>. These are generally considered to be the simplest models for computation: If you have a system that can exist in one of finitely many states, and transitions from one state to the next based on some input, it can be considered a finite state automaton. This allows the system to act as a classifier for strings of inputs as within or outside of their language.</p>                
+            <p>However, not every possible pattern of symbols in strings can be modeled as transitions between states of an FSA. Consider the <a href="https://en.wikipedia.org/wiki/Dyck_language">language of properly-nested brackets</a>, which contains the strings'[ ]', '[ [ ] ]', '[ ] [ ]', and '[ [ [ ] ] [ ] ] [ [ [ ] ] ]', but not '[ [ [ [ [', '] ] ] [ [ [', or '[ ] ] ] ] ] ]'.  Try to design an FSA where each transition is labeled with '[' or ']', and where only valid arrngements of open and close brackets brings it to a final state. It can't be done; a valid string in this language might have arbitrarily many open brackets, but each FSA only has finitely many states to keep track of how many open brackets have been used so far, so any FSA with \(n\)-states that you might claim encodes the language of properly nested brackets, I can just come up with strings consisting of \(2*n\) layers of properly-nested brackets, which your FSA will eventually get wrong. As this bracket language shows, this is only a subset of all possible formal languages. This bracket language is known to be a <b><a href="https://en.wikipedia.org/wiki/Context-free_language">Context-Free Language</a></b>, which is a more computationally complex model for computation. Where regular languages can be modeled with a finite state automaton, context-free languages require a <b><a href="https://en.wikipedia.org/wiki/Pushdown_automaton">push-down automaton</a></b>, which is very similar to an FSA, but with an extra capacity to remember which states it has passed through, which allows it to, for instance, keep track of how many open brackets it has read so far. Both regular languages and context-free languages are part of the <b><a href="https://en.wikipedia.org/wiki/Chomsky_hierarchy">Chomsky hierarchy</a></b> of formal language complexity, where the most complex automaton is the <b><a href="https://simple.wikipedia.org/wiki/Turing_machine">Turing Machine</a></b>, which you might have heard of in connection to the operation of computers. A Turing Machine is able to compute anything that can possibly be computed.</p>
+            <p>Although the regular languages are the least complex of the formal language families, they still allow for an incredible range of detailed languages. Chess, for instance, contains:</p>
+            <ul>
+                <li>finitely many board states (there are \(64\) squares and \(13\) possible occupants of a square: King, Queen, Bishop, Knight, Rook, Pawn (Black or White), or nothing; this allows us to determine a very loose upper bound of \(13^{64}\) possible board states, although <a href="https://vision.unipv.it/IA1/ProgrammingaComputerforPlayingChess.pdf">Shannon (1950)</a> calculated an upper bound around \(10^{43}\))</li>
+                <li>finitely many possible transition symbols between states (<a href="https://en.wikipedia.org/wiki/Algebraic_notation_(chess)">moves</a>)</li>
+            </ul>
+            <p>So the set of all possible sequences of moves in chess is a regular language, despite how mind-bogglingly complex it is! This vast diversity of the Regular Language Family brings us back to the <b>Subregular Hypothesis</b> from earlier.</p>
+            
+            <h3>Subregular Hypothesis</h3>
+            <p>If you were reading closely in both the Phonotactics and Computability Theory sections above, you might have noticed something similar about the natural language phonotactic restrictions and the formal languages of the FSAs devised to model the RGB lamps: the same kinds of restrictions existed in both cases! In English, the substring 'bn' of phonemes is restricted, just like the sequence 'gg' is restricted in the first RGB lamp. In Turkish, the subsequence 'ıü' is restricted (over the tier consisting of all vowels), while in your modified lamp, the subsequence 'gg' is restricted, (over the tier consisting of 'g' and 'x')). This shows us that regular language patterns can be used to model natural language phonotactics! In particular, we don't even need the full breadth of regular languages: <a href="https://aclanthology.org/P11-2011.pdf">Heinz et al. 2011</a> posits that a particular subset of regular languages, including TSL patterns, is enough to model these sort of restrictions. This subset, known as the <b>Subregular Languages</b> might be able to model all phonotactic patterns. This is the <b>subregular hypothesis</b>.</p>
+            <p>A lot of the work that has gone into Subregular Phonology has been related to drawing connections between these formal subsets of the regular languages and real phonotactic patterns from natural languages. <a href="https://par.nsf.gov/servlets/purl/10140842">De Santo & Graf (2019)</a>, for instance, define <b>Input-Sensitive Tier-based Strictly-Local (ITSL)</b> languages, where the decision whether a segment is projected to a tier depends not only on what phoneme it represents, but also on the phoneme represented by the adjacent segments. This same paper also pointed out that real-world natural languages have multiple phonotactic restrictions simultaneously (perhaps some language has a Turkish-like vowel harmony, as well as restricting 'bn', like English does), and so devised the <b>Multiple Tier-based Strictly-Local (MTSL)</b> and <b>Multiple Input-sensitive Tier-based Strictly-Local (MITSL)</b> language classes, which could be the subject of their own article.</p>
+            <p>Additionally, there has been work related to <b>Grammatical Inference</b>, a field that was introduced by <a href="https://pdf.sciencedirectassets.com/273276/1-s2.0-S0019995800X01507/1-s2.0-S0019995867911655/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEM7%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJHMEUCIQDkUECWBGWTkwS8zE9U%2F%2FTTlJBqN7Jl5GvKkmfhIdeAAQIgWB1%2BQhpFIKPLbppM6QrTdtNpVi1UaXIeQjbHnqDF2HYqvAUIx%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAFGgwwNTkwMDM1NDY4NjUiDEEXxX2lrBeIYIn2ViqQBUt3DD6Vjl2SkYio8iXXJyD9OOyYwwe1TN4QN9fZxIe8moKRgjCvwr%2FSbGHKZMRlbXwIcc4NQM%2FXWHeIOsoBUZzPsDwKtiaVxqJkXxmp74%2F%2FvZH8s8TxpOSX761dhRknYpTOqshqJuMmxr8WWlNspjkz5gvs4lLXq%2ByqB%2BKEXWiCSAynsDeDkqHhn7rSoA8gYbny2TP4sFELA%2FtOq0Mbt4F2BLNRN%2F5WMisN5vBVaoJ76e7TxCCj5BpkbbSOXLI5ZUEM5lTUGwM9PpXPXsbSCsTuANTrEyzm3U89NVOnhZnVyC1QaXzmsjyTZNDLMDZSsY7LoNXklLt7QdwpTMeftqok%2BWC%2FXcBBtdZTY6mOLa9TxRxqInaOS4aU3Q5jSyjubRMiD3WVXuTtLY3mo5nWN9qGvfXzTmFnbElNcixrqDhr3sUfHUM2DP5Iruh1%2BXN9qqWRGo%2BV7l%2FcP8V%2FRNCKPVxqHCR03jS8GCP4d9R9%2FetDCYjx1IqNnhlDsTA8fRZkw6MgGgHldmHhrvd0aTo9%2FQDceFnHVKzEvQfxFqjkpzBn4aBV3OJnk0%2BHTq7B61r%2FkIxG6aJOiaPq%2B73h3AkZFv7iBzP2JO9NQtNUXrD2HmNB5ETdVX7vrePdEN0T8TW89fpise%2FAKuiRoCukSJZto5Juon22qZHC30eX653V4303vKOWefTit7rDxk%2Bv%2FXc%2FbC%2BQKocqa6qofRHChq3%2FBvf0Krq7JxHwx50eOGTATxPCnMXCvS%2BTa8bHLhv9wmRQ3mG5lZ0ZEDkuSGoG%2FhaK8uPoG2b4fw1KozYRKeDI3JmaS5xilSHkZ5RwzyUu3s0%2F5RAO0%2FJfxtRxSzzIHMKE3VCR0OENMMPCaxGzJMC0rQMcMMCikaIGOrEBShXtFUCLsd%2F5qCABxGBDtFSOmf8cOSIy6Z0w4YItKd4lxNLBhzCF2pssglWFqtXx%2BS9Fmqc5UctSA%2FJm1iv3Olkc%2Fra1qiL4wByhrCtLG68MuQFv7oz4g9TJ%2BOK8rDVUYhUyzYsczCeW9v92%2FPFv4WwmAMYhzRP6DUfk%2Bk0%2FlktrBJq7D%2F1yrJ88fqChbabWFlw9mxZrnJZ0G31g0C4FWbT%2FQ398EnYAvMNA9SFoutSH&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230422T214438Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIAQ3PHCVTYUDJAS3UH%2F20230422%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=dcaec4600352806d51f7c6e325043a93372fde2194e5faad0b7261f03f7be2a7&hash=fb0c96b72c32a569f606bb702b89e8a1c3603a17a2759835046d30cb43d3715f&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S0019995867911655&tid=spdf-c18650f9-393c-4064-add9-80c5cbefc0b4&sid=6d2787b83eae7844e26bb114f88bd69bdc46gxrqa&type=client&tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&ua=13105901075654015c58&rr=7bc10c99b8ee27e8&cc=us">Gold (1967)</a> (see also <a href="https://www.cambridge.org/core/books/grammatical-inference/CEEB229AC5A80DFC6436D860AC79434F">De La Higuera, 2010</a>). Grammatical inference is concerned with developing algorithms to derive a model for a formal language (such as an FSA) based on a set of strings in that language. Human language acquisition can be seen as a complex case of grammatical inference, and particular algorithms can help prove that certain patterns can be learned in theory. In particular, it is well known that humans learn primarily from <b>positive data</b>: you were never explicitly told that "bnick" is not a word, and have just figured that out from the distribution of sounds you have heard in things that are words. <a href="https://www.proquest.com/docview/2436889255?pq-origsite=gscholar&fromopenview=true">Aksënova (2020)</a> <a href="https://aclanthology.org/2021.scil-1.16.pdf">De Santo &  Aksënova (2021)</a>, and <a href="https://proceedings.mlr.press/v153/lambert21a/lambert21a.pdf">Lambert (2021)</a> are all recent works in this field that relate to the development and evaluation of these Grammatical Inference Algorithms and have been very important to my own research <a href="https://scholarworks.umass.edu/cgi/viewcontent.cgi?article=1268&context=scil">(Johnson & De Santo, 2023)</a>.</p>
+
+            <p>So where did the experiment from the beginning of this article come from, and how does it connect to Subregular Languages?</p>
+            <p>If you look closely at the language sample that was given to you at first, you might notice that each word either contains "sh" OR "s" but never both (note that the sound English-speakers represent with "s" is not part of the sound represented by "sh" - so even though the letter "s" is technically reused, this is a quirk of English orthography and does not indicate anything deeper about the speech sounds themselves). That is, the subsequences "s", "sh" and "sh", "s" are forbidden on the tier consisting of {"s","sh"}. The subregular hypothesis predicts that people learning to recognize these words will pick up on this and, when these sounds are later found to cooccur in words in the test samples later on, notice that it does not match the inputs. Did you pick up on this pattern? Or maybe some other pattern? Most of the participants in these studies did!</p>
+
+            <h3>Conclusion</h3>
+            <p>The findings of subregular phonology demonstrate a pattern underlying human language behavior. It is hoped that further research will provide insight into human language faculty and word learning allow us to create better models of phonotactics and other language phenomena.</p>
+            <p>But even just as a thought experiment, it is also an interesting journey into ideas about how to quantify the complexity of patterns, and how to design the minimal computer-like system that can detect these patterns! It shows us how interesting it is to try to create mathematical models of systems, even ones so complicated as language.</p>
+
+            <h3>References</h3>
+            <p>Aksënova, A. (2020). Tool-assisted induction of subregular languages and mappings (Doctoral dissertation, State University of New York at Stony Brook).</p>
+            <p>Avcu, E., & Hestvik, A. (2020). Unlearnable phonotactics. Glossa: a journal of general linguistics, 5(1).</p>
+            <p>De la Higuera, C. (2010). Grammatical inference: learning automata and grammars. Cambridge University Press.</p>
+            <p>De Santo, A., & Aksënova, A. (2021, February). Learning Interactions of Local and Non-Local Phonotactic Constraints from Positive Input. In Proceedings of the Society for Computation in Linguistics 2021 (pp. 167-176).</p>
+            <p>De Santo, A., & Graf, T. (2019). Structure sensitive tier projection: Applications and formal properties. In Formal Grammar: 24th International Conference, FG 2019, Riga, Latvia, August 11, 2019, Proceedings 24 (pp. 35-50). Springer Berlin Heidelberg.</p>
+            <p>Gold, E. M. (1967). Language identification in the limit. Information and control, 10(5), 447-474.</p>
+            <p>Heinz, J., Rawal, C., & Tanner, H. G. (2011, June). Tier-based strictly local constraints for phonology. In Proceedings of the 49th Annual Meeting of the Association for Computational Linguistics: Human language technologies (pp. 58-64).</p>
+            <p>Johnson, Jacob K. and De Santo, Aniello (2023) "Evaluating a Phonotactic Learner for MITSL-(2,2) Languages," Proceedings of the Society for Computation in Linguistics: Vol. 6, Article 37. DOI: https://doi.org/10.7275/crgk-6g04</p>
+            <p>Lai, R. (2015). Learnable vs. unlearnable harmony patterns. Linguistic Inquiry, 46(3), 425-451.</p>
+            <p>Lambert, D. (2021, August). Grammar interpretations and learning TSL online. In International Conference on Grammatical Inference (pp. 81-91). PMLR.</p>
+            <p>McNaughton, R., & Papert, S. A. (1971). Counter-Free Automata (MIT research monograph no. 65). The MIT Press.</p>
+            <p>Shannon, C. E. (1950). XXII. Programming a computer for playing chess. The London, Edinburgh, and Dublin Philosophical Magazine and Journal of Science, 41(314), 256-275.</p>
+        </article>
+    </body>
+</html>

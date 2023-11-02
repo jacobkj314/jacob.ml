@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Your Own MTSL Conlang</title>
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <link rel="stylesheet" href="https://latex.now.sh/style.css">
+    <style>
+        :root {
+            --body-bg-color: rgb(255, 240, 250);
+        }
+
+        .center,
+        table,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5 {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .example>tbody>tr>td {
+            font-style: italic;
+            padding: 3px;
+        }
+    </style>
+    
+</head>
+
+<body>
+    <header>
+        <h1>Your Own MTSL Conlang!</h1>
+        <p class="author">Jacob Johnson</p>
+    </header>
+    <article class="indent-pars">
+        <p>This is a fun little artistic project I made to show off some of what I have learned while working with <a href="https://nnnNNnnn.info/subregular">Subregular Languages</a>. This website generates a brand new MTSL Conlang each time the page is loaded. Based on recent research in computational phonology, this means that people should actually be quite able to learn these vocabulary items as an actual language, with an actual phonotactic system.</p>
+        <p>For simplicity, I used <a href="https://en.wikipedia.org/wiki/Phoneme#Numbers_of_phonemes_in_different_languages">the most cross-linguistically common phonemes</a> for these conlangs' phonemic inventories. I pull the most common words from <a href="https://gist.github.com/deekayen/4148741">this github repo</a> to map the generated words to English words.</p>
+        <p>Because my research in Subregular Languages has mainly pertained to Phonology, this generator does not generate any morphology (word parts) or syntax (word order). It may produce forms whose mappings to English words do not make complete morphological sense (although I did spend the time to find a list which seems to only include lemmas, or "root" forms of words, so hopefully this should be uncommon). Feel free to imagine whatever morphology and syntax you would like!</p>
+        <p>It takes a few seconds to generate, so please be patient, and just refresh the page if the table does not come up within 20 seconds. Make sure you have JavaScript enabled as well. Enjoy :)</p>
+
+        <table>
+            <tr></tr>
+        </table>
+
+    </article>
+
+    <py-script src="conlang.py"></py-script>
+
+</body>
+
+</html>
